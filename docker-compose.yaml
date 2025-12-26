@@ -1,0 +1,36 @@
+services:
+  ownkey-mysql:
+    image: mysql:lts
+    ports:
+      - "33063:3306"
+    container_name: mysql
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_USER: ${DATASOURCE_ID}
+      MYSQL_PASSWORD: ${DATASOURCE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DATASOURCE_PASSWORD}
+      MYSQL_DATABASE: local
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-name-resolve=ON
+      - --innodb-file-per-table=1
+    volumes:
+      - ownkey-mysql_data:/var/lib/mysql
+
+  ownkey-redis:
+    image: redis:8-alpine
+    container_name: redis
+    ports:
+      - "63793:6379"
+    environment:
+      TZ: Asia/Seoul
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    volumes:
+      - ownkey-redis_data:/data
+
+volumes:
+  ownkey-mysql_data:
+  ownkey-redis_data:

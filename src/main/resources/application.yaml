@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: demo
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:33063/local
+    username: 'ownkey'
+    password: 'ownkey123!'
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # 개발 환경에서는 스키마 검증을 완화
+        validator:
+          apply_to_ddl: false
+
+  sql:
+    init:
+      mode: never
+
+jwt:
+  access-token-expiration-sec: 600
+  refresh-token-expiration-sec: 31536000
+
+logging:
+  level:
+    root: INFO
