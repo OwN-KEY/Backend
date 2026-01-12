@@ -5,14 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ownkey.application.notification.dto.NotificationCommand;
 import ownkey.application.notification.dto.NotificationResult;
-import ownkey.application.notification.port.in.ManageDeviceTokenUseCase;
-import ownkey.application.notification.port.in.ManageNotificationUseCase;
-import ownkey.common.exception.BusinessException;
-import ownkey.common.exception.ErrorCode;
-import ownkey.domain.notification.DeviceToken;
-import ownkey.domain.notification.DeviceTokenRepository;
-import ownkey.domain.notification.NotificationSetting;
-import ownkey.domain.notification.NotificationSettingRepository;
+import ownkey.application.notification.usecase.ManageDeviceTokenUseCase;
+import ownkey.application.notification.usecase.ManageNotificationUseCase;
+import ownkey.presentation.common.exception.BusinessException;
+import ownkey.presentation.common.exception.ErrorCode;
+import ownkey.implement.notification.model.DeviceToken;
+import ownkey.infrastructure.notification.jpa.DeviceTokenRepository;
+import ownkey.implement.notification.model.NotificationSetting;
+import ownkey.infrastructure.notification.jpa.NotificationSettingRepository;
+
 
 @Service
 @Transactional
@@ -22,13 +23,12 @@ public class NotificationService implements ManageNotificationUseCase, ManageDev
     private final NotificationSettingRepository settingRepository;
     private final DeviceTokenRepository deviceTokenRepository;
 
-    // --- Notification Settings ---
 
     @Override
     @Transactional(readOnly = true)
     public NotificationResult.Settings getSettings(Long userId) {
         NotificationSetting setting = settingRepository.findById(userId)
-                .orElse(new NotificationSetting(userId));
+                .orElseGet(() -> new NotificationSetting(userId));
 
         return new NotificationResult.Settings(
                 setting.isCommunity(),
@@ -42,31 +42,28 @@ public class NotificationService implements ManageNotificationUseCase, ManageDev
         NotificationSetting setting = settingRepository.findById(userId)
                 .orElseGet(() -> settingRepository.save(new NotificationSetting(userId)));
 
-        boolean newCommunity = (command.community() != null) ? command.community() : setting.isCommunity();
-        boolean newWiki = (command.wiki() != null) ? command.wiki() : setting.isWiki();
-        boolean newShowmethekey = (command.showmethekey() != null) ? command.showmethekey() : setting.isShowmethekey();
-
-        setting.update(newCommunity, newWiki, newShowmethekey);
+        setting.update(command.community(), command.wiki(), command.showmethekey());
     }
 
-    // --- Device Tokens ---
 
     @Override
-    public void register(Long userId, NotificationCommand.RegisterDevice command) {
-        deviceTokenRepository.findByToken(command.deviceToken())
-                .ifPresentOrElse(
-                        existing -> {
-                            if (!existing.getUserId().equals(userId)) {
-                                deviceTokenRepository.delete(existing);
-                                deviceTokenRepository.save(new DeviceToken(userId, command.deviceToken(), command.environment()));
-                            }
-                        },
-                        () -> deviceTokenRepository.save(new DeviceToken(userId, command.deviceToken(), command.environment()))
-                );
+    public void registerDevice(Long userId, NotificationCommand.RegisterDevice command) {
+        String tokenValue = command.deviceToken();
+        var existingOpt = deviceTokenRepository.findByToken(tokenValue);
+
+        if (existingOpt.isPresent()) {
+            DeviceToken existing = existingOpt.get();
+            if (existing.getUserId().equals(userId)) {
+                return;
+            }
+            deviceTokenRepository.delete(existing);
+        }
+
+        deviceTokenRepository.save(new DeviceToken(userId, tokenValue, command.environment()));
     }
 
     @Override
-    public void unregister(Long userId, Long deviceId) {
+    public void unregisterDevice(Long userId, Long deviceId) {
         DeviceToken token = deviceTokenRepository.findById(deviceId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 

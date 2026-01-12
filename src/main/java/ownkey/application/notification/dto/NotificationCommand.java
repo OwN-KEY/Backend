@@ -1,7 +1,7 @@
 package ownkey.application.notification.dto;
 
-import ownkey.common.exception.BusinessException;
-import ownkey.common.exception.ErrorCode;
+import ownkey.presentation.common.exception.BusinessException;
+import ownkey.presentation.common.exception.ErrorCode;
 
 public class NotificationCommand {
 

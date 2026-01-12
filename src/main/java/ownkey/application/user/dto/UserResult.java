@@ -10,6 +10,7 @@ public class UserResult {
             String profileImageId,
             String backgroundImageId,
             String role,
+            String status,
             LocalDateTime createdAt
     ) {}
 

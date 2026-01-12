@@ -53,6 +53,8 @@ dependencies {
 	implementation 'io.github.openfeign.querydsl:querydsl-jpa:6.12'
 	annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.12:jpa'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'

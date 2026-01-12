@@ -1,7 +1,7 @@
 package ownkey.application.user.dto;
 
-import ownkey.common.exception.BusinessException;
-import ownkey.common.exception.ErrorCode;
+import ownkey.presentation.common.exception.BusinessException;
+import ownkey.presentation.common.exception.ErrorCode;
 
 public class UserCommand {
     public record UpdateProfile(String nickname, String profileImageId, String backgroundImageId) {
