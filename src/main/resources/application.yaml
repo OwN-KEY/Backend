@@ -2,15 +2,29 @@ spring:
   application:
     name: demo
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: full    # 디버깅용 (운영 시에는 basic 권장)
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:33063/local
     username: 'ownkey'
     password: 'ownkey123!'
 
+  data:
+    redis:
+      host: localhost
+      port: 63793
+
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         # 개발 환경에서는 스키마 검증을 완화
@@ -24,7 +38,12 @@ spring:
 jwt:
   access-token-expiration-sec: 600
   refresh-token-expiration-sec: 31536000
+  secret-key: 'own_key_secret_key_must_be_encoded_base64_and_long_long_enough_for_security'
 
 logging:
   level:
     root: INFO
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  admin-key: ${KAKAO_ADMIN_KEY}
